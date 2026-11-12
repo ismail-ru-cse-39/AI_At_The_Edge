@@ -1,4 +1,3 @@
-"""Show saved observations, export an analysis CSV or apply the configured retention policy."""
 import argparse
 import csv
 import json
@@ -17,7 +16,7 @@ def main():
     if args.purge:
         print("Removed old database rows:", store.purge(config["retention_days"]))
     rows = store.rows(config["station_id"])
-    print(f"Saved observations for this station: {len(rows)}")
+    print("Saved observations for this station:", len(rows))
     if rows:
         print(json.dumps(rows[-1], indent=2))
     if args.export:
@@ -25,8 +24,8 @@ def main():
                   "temperature_raw_c", "temperature_c", "humidity_pct", "pressure_hpa"]
         out = project_path(args.export)
         out.parent.mkdir(parents=True, exist_ok=True)
-        with out.open("w", newline="", encoding="utf-8") as handle:
-            writer = csv.DictWriter(handle, fields, extrasaction="ignore")
+        with out.open("w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fields, extrasaction="ignore")
             writer.writeheader()
             writer.writerows(rows)
         print("Exported:", out)

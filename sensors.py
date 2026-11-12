@@ -1,4 +1,3 @@
-"""One explicit hardware source, or a labelled software simulation."""
 import math
 import random
 

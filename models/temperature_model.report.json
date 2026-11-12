@@ -1,0 +1,50 @@
+{
+  "source": "simulated",
+  "station_id": "station01",
+  "raw_observations": 1800,
+  "examples": 1784,
+  "train_examples": 1064,
+  "validation_examples": 344,
+  "test_examples": 344,
+  "validation_trials": [
+    {
+      "alpha": 0.1,
+      "mae_c": 0.43433919726223735
+    },
+    {
+      "alpha": 1.0,
+      "mae_c": 0.4341089325156685
+    },
+    {
+      "alpha": 10.0,
+      "mae_c": 0.4347547998164949
+    },
+    {
+      "alpha": 100.0,
+      "mae_c": 0.4691272294653631
+    }
+  ],
+  "selected_alpha": 1.0,
+  "selected_validation_mae_c": 0.4341089325156685,
+  "test_persistence_all": {
+    "mae_c": 1.4932925847540282,
+    "rmse_c": 1.675433379549928
+  },
+  "test_ridge_all_before_guard": {
+    "mae_c": 0.4515029868513556,
+    "rmse_c": 0.5630400339141146
+  },
+  "test_guard_coverage": 0.9825581395348837,
+  "test_ridge_accepted_only": {
+    "mae_c": 0.4510789365048406,
+    "rmse_c": 0.5630376163406777
+  },
+  "test_persistence_on_same_accepted_cases": {
+    "mae_c": 1.4926217385322436,
+    "rmse_c": 1.6766224799744363
+  },
+  "python": "3.12.16",
+  "numpy": "2.5.4",
+  "sklearn": "1.9.1",
+  "warning": "Chronological holdout, not independent field validation. Adjacent errors remain correlated."
+}

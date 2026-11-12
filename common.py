@@ -1,4 +1,3 @@
-"""Shared names, configuration and the observation contract. Python standard library only."""
 import json
 import math
 import re
@@ -15,6 +14,27 @@ BOUNDS = {"temperature_c": (-20, 60), "humidity_pct": (0, 100),
 def project_path(value):
     path = Path(value).expanduser()
     return path if path.is_absolute() else ROOT / path
+
+
+def load_config(filename="config.json"):
+    path = project_path(filename)
+    if not path.exists():
+        raise SystemExit(f"Missing {path}. Create config.json using the Week 2 steps first.")
+    config = json.loads(path.read_text(encoding="utf-8"))
+    if not re.fullmatch(r"[a-z][a-z0-9_-]{2,31}", config["station_id"]):
+        raise SystemExit("Use a station ID such as station01: lower-case letters, digits, _ or -.")
+    interval = config["sample_interval_s"]
+    if isinstance(interval, bool) or not isinstance(interval, (float, int)) or not 1 <= interval <= 60:
+        raise SystemExit("sample_interval_s must be a number from 1 to 60.")
+    offset = config["temperature_offset_c"]
+    if not finite_number(offset) or abs(offset) > 10:
+        raise SystemExit("Check temperature_offset_c; use 0 until calibration is justified.")
+    if type(config["retention_days"]) is not int or not 1 <= config["retention_days"] <= 30:
+        raise SystemExit("Project retention_days must be from 1 to 30; choose a justified value.")
+    port = config.get("broker_port", 1883)
+    if type(port) is not int or not 1 <= port <= 65535:
+        raise SystemExit("broker_port must be an integer from 1 to 65535.")
+    return config
 
 
 def utc_string(epoch):
@@ -37,10 +57,6 @@ def clean_values(values):
         else:
             clean[field] = float(value)
     return clean, errors
-
-
-# SOURCE GAP: common.py source lines 30-62 are not present in the supplied PDFs.
-# They are not reconstructed here.
 
 
 def observation(config, values, run_id, sequence, epoch, source, error=None):
@@ -66,7 +82,7 @@ def validate_observation(row, expected_station=None):
     if not isinstance(row, dict) or row.get("schema_version") != 1:
         raise ValueError("Unknown observation format")
     station = row.get("station_id", "")
-    if not isinstance(station, str) or not re.fullmatch(r"[a-z][a-z0-9_]{2,31}", station):
+    if not isinstance(station, str) or not re.fullmatch(r"[a-z][a-z0-9_-]{2,31}", station):
         raise ValueError("Invalid station ID")
     if expected_station is not None and station != expected_station:
         raise ValueError("Topic and station ID do not match")
@@ -85,7 +101,7 @@ def validate_observation(row, expected_station=None):
     if not finite_number(interval) or not 1 <= interval <= 60:
         raise ValueError("Invalid sampling interval")
     if type(row.get("valid")) is not bool or not isinstance(row.get("errors"), list):
-        raise ValueError("Missing data quality flag")
+        raise ValueError("Missing data-quality flag")
     if any(not isinstance(e, str) or len(e) > 250 for e in row["errors"]):
         raise ValueError("Invalid error description")
     _, errors = clean_values(row)

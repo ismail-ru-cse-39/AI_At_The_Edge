@@ -1,0 +1,11 @@
+{
+  "station_id": "station01",
+  "sample_interval_s": 5,
+  "database": "data/weather.db",
+  "temperature_offset_c": 0.0,
+  "calibration_id": "uncalibrated",
+  "retention_days": 7,
+  "broker_host": "localhost",
+  "broker_port": 1883,
+  "mqtt_username": ""
+}

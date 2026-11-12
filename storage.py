@@ -1,4 +1,3 @@
-"""SQLite is a small database stored in one local file; each call uses a short transaction."""
 import json
 from contextlib import contextmanager
 import sqlite3
@@ -32,7 +31,7 @@ class Store:
         with self.connect() as db:
             result = db.execute("INSERT OR IGNORE INTO readings VALUES (?, ?, ?, ?)",
                                 (row["station_id"], row["sample_id"], row["observed_epoch"], body))
-        return result.rowcount == 1
+            return result.rowcount == 1
 
     def latest(self, station):
         """Return a station's most recent saved observation, or None before its first sample."""
@@ -66,4 +65,4 @@ class Store:
         cutoff = time.time() - days * 86400
         with self.connect() as db:
             result = db.execute("DELETE FROM readings WHERE epoch < ?", (cutoff,))
-        return result.rowcount
+            return result.rowcount

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en-IE">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Weather station · local dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to readings</a>
+<header>
+  <p>AI at the Edge · indoor prototype</p>
+  <h1>Local weather station</h1>
+  <p>Station: <strong data-field="station">{{ values.station }}</strong> ·
+     source: <strong data-field="source">{{ values.source }}</strong></p>
+  <p class="notice">Indoor sensor demonstration, not an official forecast, health monitor or warning service.</p>
+</header>
+<main id="main">
+  <section aria-labelledby="state-heading">
+    <h2 id="state-heading">What is happening?</h2>
+    <p role="status" data-field="status">{{ values.status }}</p>
+    <p data-field="why">{{ values.why }}</p>
+    <p id="connection-note" role="status">Dashboard ready.</p>
+    <button type="button" id="pause-updates" hidden>Pause dashboard updates</button>
+    <a href="/">Refresh now</a>
+  </section>
+  <section aria-labelledby="reading-heading">
+    <h2 id="reading-heading">Measurements and context</h2>
+    <dl>
+    {% for field, label in [('temperature','Sensor temperature'), ('humidity','Relative humidity'),
+        ('pressure','Local pressure'), ('heat_index','Heat index estimate'),
+        ('observed_at','Observation time (UTC)'), ('age','Age of observation'),
+        ('network','MQTT at last sample')] %}
+      <div><dt>{{ label }}</dt><dd data-field="{{ field }}">{{ values[field] }}</dd></div>
+    {% endfor %}
+    </dl>
+    <p>Heat index is shown only for 27–40 °C and 40–85% RH in this teaching implementation.
+       It is not a universal comfort or exercise-safety score.</p>
+  </section>
+  <section aria-labelledby="model-heading">
+    <h2 id="model-heading">Experimental prediction: 60 seconds ahead</h2>
+    <p>Machine-learning estimate: <strong data-field="forecast">{{ values.forecast }}</strong></p>
+    <p>Persistence baseline: <strong data-field="baseline">{{ values.baseline }}</strong></p>
+    <p data-field="forecast_why">{{ values.forecast_why }}</p>
+    <p>The prediction does not control the LED. Observed-data rules do.</p>
+  </section>
+  <section aria-labelledby="control-heading">
+    <h2 id="control-heading">Control the physical display</h2>
+    <p data-field="override">{{ values.override }}</p>
+    <p>Last station acknowledgement: <strong data-field="display">{{ values.display }}</strong></p>
+    <form method="post" action="{{ url_for('control') }}">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <button type="submit" name="action" value="mute">Pause visual alerts for 60 seconds</button>
+      <button type="submit" name="action" value="resume">Resume automatic display</button>
+    </form>
+    <p>O = normal; ! = project attention rule; ? = unavailable or warming up; = = visual alert paused.
+       The joystick centre button provides the same temporary override. Sensor collection continues.</p>
+  </section>
+  <section aria-labelledby="privacy-heading">
+    <h2 id="privacy-heading">Where the data goes</h2>
+    <p>Readings and predictions are stored on this Pi. When MQTT is enabled, readings pass through the MQTT broker on this Pi to a connected PC.
+       This lab connection uses port 1883 without transport encryption. No cloud service is required.</p>
+    <p>Do not use these readings to identify people or infer attendance. Review your retention setting and account for archives, exports and deletion. Changing an ID does not necessarily anonymise data.</p>
+  </section>
+  <noscript><p>Automatic updates are off because JavaScript is unavailable. Use Refresh now;
+  readings and controls still work.</p></noscript>
+</main>
+</body>
+</html>

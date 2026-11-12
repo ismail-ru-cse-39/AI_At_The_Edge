@@ -1,4 +1,3 @@
-"""Week 2: run this alone, before starting station.py."""
 from sense_hat import SenseHat
 
 sense = SenseHat()
